@@ -68,53 +68,61 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWsp7idCLEfOfUtRPUcdmW_xRsVdVgaDEomXVhUIY9bZ9a5mhI_un-YNft5nEBR3fH/exec";
 
+    // Callback xử lý dữ liệu trả về từ JSONP
+    window.handleScriptData = function(data) {
+        document.getElementById('loading').style.display = 'none';
+        
+        if (!Array.isArray(data) || data.length === 0) {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('loading').innerText = 'Chưa có dữ liệu nào trong Google Sheet.';
+            document.getElementById('dataTable').style.display = 'none';
+            return;
+        }
+
+        document.getElementById('dataTable').style.display = 'table';
+
+        let totalQr = data.length;
+        let totalDaysCount = 0;
+        let rowsHtml = '';
+
+        data.slice().reverse().forEach((row, index) => {
+            const days = parseInt(row[3]) || 0;
+            totalDaysCount += days;
+
+            rowsHtml += `
+                <tr>
+                    <td>${totalQr - index}</td>
+                    <td>${row[0]}</td>
+                    <td><b>${row[2] || ''} ${row[1] || ''}</b></td>
+                    <td><span style="background:#e1f0fa; color:#0078d4; padding:3px 8px; border-radius:12px; font-weight:bold;">${days} ngày</span></td>
+                    <td>${row[4] || '-'}</td>
+                    <td style="white-space: pre-wrap;">${row[5] || '-'}</td>
+                </tr>
+            `;
+        });
+
+        document.getElementById('totalCount').innerText = totalQr;
+        document.getElementById('totalDays').innerText = totalDaysCount;
+        document.getElementById('tableBody').innerHTML = rowsHtml;
+    };
+
     function loadData() {
         document.getElementById('loading').style.display = 'block';
+        document.getElementById('loading').innerText = 'Đang tải dữ liệu từ Google Sheets...';
         document.getElementById('dataTable').style.display = 'none';
 
-        // Gọi API lấy dữ liệu thông qua cấu hình redirect an toàn
-        fetch(SCRIPT_URL, { redirect: "follow" })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('dataTable').style.display = 'table';
+        // Xóa script old nếu có
+        const oldScript = document.getElementById('jsonpScript');
+        if (oldScript) oldScript.remove();
 
-                if (!Array.isArray(data) || data.length === 0) {
-                    document.getElementById('loading').style.display = 'block';
-                    document.getElementById('loading').innerText = 'Chưa có dữ liệu nào trong Google Sheet.';
-                    document.getElementById('dataTable').style.display = 'none';
-                    return;
-                }
-
-                let totalQr = data.length;
-                let totalDaysCount = 0;
-                let rowsHtml = '';
-
-                // Đảo ngược danh sách để hiển thị lượt tạo mới nhất lên đầu
-                data.slice().reverse().forEach((row, index) => {
-                    const days = parseInt(row[3]) || 0;
-                    totalDaysCount += days;
-
-                    rowsHtml += `
-                        <tr>
-                            <td>${totalQr - index}</td>
-                            <td>${row[0]}</td>
-                            <td><b>${row[2] || ''} ${row[1] || ''}</b></td>
-                            <td><span style="background:#e1f0fa; color:#0078d4; padding:3px 8px; border-radius:12px; font-weight:bold;">${days} ngày</span></td>
-                            <td>${row[4] || '-'}</td>
-                            <td style="white-space: pre-wrap;">${row[5] || '-'}</td>
-                        </tr>
-                    `;
-                });
-
-                document.getElementById('totalCount').innerText = totalQr;
-                document.getElementById('totalDays').innerText = totalDaysCount;
-                document.getElementById('tableBody').innerHTML = rowsHtml;
-            })
-            .catch(err => {
-                console.error(err);
-                document.getElementById('loading').innerHTML = '⚠️ Không thể tải dữ liệu! Vui lòng kiểm tra lại quyền truy cập Apps Script.';
-            });
+        // Tạo thẻ script gọi JSONP vượt rào cản CORS
+        const script = document.createElement('script');
+        script.id = 'jsonpScript';
+        script.src = SCRIPT_URL + '?callback=handleScriptData&t=' + new Date().getTime();
+        script.onerror = function() {
+            document.getElementById('loading').innerText = '⚠️ Không thể tải dữ liệu! Vui lòng kiểm tra lại quyền truy cập Apps Script.';
+        };
+        document.body.appendChild(script);
     }
 
     window.onload = loadData;
