@@ -17,7 +17,7 @@
         h2 { margin-top: 0; color: #0078d4; }
         .form-group { margin-bottom: 15px; text-align: left; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #333; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; background-color: #fff; }
         .row { display: flex; gap: 10px; }
         .row .form-group { flex: 1; }
         .checkbox-group { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; text-align: left; cursor: pointer; }
@@ -29,6 +29,7 @@
         canvas { border: 8px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 8px; display: none; }
         .desc-text { text-align: left; background: #f8f9fa; padding: 10px; border-radius: 6px; border-left: 3px solid #0078d4; font-size: 13px; white-space: pre-wrap; word-break: break-word; }
         #repeatOptions { display: none; background: #f0f4f8; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px dashed #0078d4; }
+        .flatpickr-input { cursor: pointer !important; }
     </style>
 </head>
 <body>
@@ -62,7 +63,6 @@
         try {
             const rawJson = b64_to_utf8(dataParam);
             const payload = JSON.parse(rawJson);
-            const sortedDates = payload.dates.map(d => new Date(d.start)).sort((a, b) => a - b);
             
             let icsLines = [
                 "BEGIN:VCALENDAR",
@@ -157,7 +157,7 @@
 
             <div class="form-group">
                 <label id="dateLabel" for="multiDates">Chọn các ngày diễn ra:</label>
-                <input type="text" id="multiDates" placeholder="Nhấn vào đây để chọn ngày..." readonly>
+                <input type="text" id="multiDates" placeholder="Nhấp vào đây để chọn ngày...">
             </div>
 
             <div class="row">
@@ -182,12 +182,14 @@
             </div>
         `;
 
-        initFlatpickr("multiple");
+        setTimeout(() => {
+            initFlatpickr("multiple");
+        }, 100);
     }
 
     let datePickerInstance = null;
 
-    function initFlatpickr(mode, autoOpen = false) {
+    function initFlatpickr(mode) {
         if (datePickerInstance) {
             datePickerInstance.destroy();
         }
@@ -195,14 +197,9 @@
             mode: mode,
             dateFormat: "Y-m-d",
             locale: "vn",
-            disableMobile: "true" // Ép buộc sử dụng giao diện Flatpickr đẹp trên di động
+            disableMobile: true, // Boolean đúng định dạng
+            clickOpens: true
         });
-
-        if (autoOpen) {
-            setTimeout(() => {
-                datePickerInstance.open();
-            }, 100);
-        }
     }
 
     function toggleRepeatOptions() {
@@ -216,12 +213,12 @@
             repeatOptions.style.display = "block";
             dateLabel.innerText = "Chọn khoảng thời gian (Từ ngày -> Đến ngày):";
             dateInput.placeholder = "Chọn Ngày bắt đầu và Ngày kết thúc...";
-            initFlatpickr("range", true); // Khởi tạo chế độ Range và mở bảng chọn ngay
+            initFlatpickr("range");
         } else {
             repeatOptions.style.display = "none";
             dateLabel.innerText = "Chọn các ngày diễn ra rời rạc:";
             dateInput.placeholder = "Nhấn vào đây để chọn các ngày...";
-            initFlatpickr("multiple", true); // Khởi tạo chế độ Multiple và mở bảng chọn ngay
+            initFlatpickr("multiple");
         }
     }
 
@@ -229,6 +226,12 @@
         const icon = document.getElementById('icon').value;
         const title = document.getElementById('title').value.trim();
         const location = document.getElementById('location').value.trim();
+        
+        if (!datePickerInstance || !datePickerInstance.selectedDates) {
+            alert("Vui lòng chọn ngày diễn ra!");
+            return;
+        }
+
         const selectedDates = datePickerInstance.selectedDates;
         const startTimeVal = document.getElementById('startTime').value;
         const endTimeVal = document.getElementById('endTime').value;
