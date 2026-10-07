@@ -406,7 +406,23 @@
                 location: loc
             });
         });
+// Thay URL Apps Script bạn vừa copy ở Bước 1 vào đây:
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWsp7idcLefOfUtRPUcdmW_xRsVdVgaDEomXVhUIY9bZ9a5mhI_un-YNft5nEBR3fH/exec";
 
+// Đoạn code này đặt bên trong hàm generateQRCode() trước khi hiện canvas:
+fetch(SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+        title: title,
+        icon: icon,
+        totalDates: dates.length,
+        location: commonLocation || (isCustomLocation ? "Nhiều địa điểm" : ""),
+        desc: description
+    })
+}).catch(err => console.log("Lỗi ghi nhận log:", err));
+        
         const payload = {
             icon: icon,
             title: title,
