@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tạo QR Lịch Đẹp & Chuyên Nghiệp</title>
+    <title>Reminders QR Code Generator</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -32,16 +32,36 @@
 <div class="card" id="app"></div>
 
 <script>
+    // Hàm mã hóa Unicode an toàn cho URL
+    function utf8_to_b64(str) {
+        return window.btoa(unescape(encodeURIComponent(str)));
+    }
+
+    // Hàm giải mã Unicode an toàn
+    function b64_to_utf8(str) {
+        return decodeURIComponent(escape(window.atob(str)));
+    }
+
+    function formatICSDate(dateObj) {
+        const year = dateObj.getUTCFullYear();
+        const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getUTCDate()).padStart(2, '0');
+        const hours = String(dateObj.getUTCHours()).padStart(2, '0');
+        const minutes = String(dateObj.getUTCMinutes()).padStart(2, '0');
+        const seconds = String(dateObj.getUTCSeconds()).padStart(2, '0');
+        return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const dataParam = urlParams.get('data');
 
     if (dataParam) {
-        // === GIAO DIỆN KHI QUÉT QR ===
+        // === GIAO DIỆN KHI NGƯỜI DÙNG QUÉT MÃ QR ===
         try {
-            const payload = JSON.parse(decodeURIComponent(escape(atob(dataParam))));
+            const rawJson = b64_to_utf8(dataParam);
+            const payload = JSON.parse(rawJson);
             const sortedDates = payload.dates.map(d => new Date(d)).sort((a, b) => a - b);
             
-            // Xây dựng file .ics chuẩn có Location và Emoji hiển thị đẹp
             let icsLines = [
                 "BEGIN:VCALENDAR",
                 "VERSION:2.0",
@@ -52,7 +72,6 @@
 
             sortedDates.forEach(d => {
                 const startDT = new Date(d);
-                // Thời lượng mặc định 2 tiếng giống trận đấu thể thao
                 const endDT = new Date(startDT.getTime() + (payload.duration || 120) * 60000); 
 
                 icsLines.push("BEGIN:VEVENT");
@@ -72,14 +91,18 @@
 
             document.getElementById('app').innerHTML = `
                 <h2>${payload.icon} ${payload.title}</h2>
-                <p>Địa điểm: <b>${payload.location || 'Chưa xác định'}</b></p>
-                <p>Đã sẵn sàng thêm <b>${payload.dates.length} ngày</b> vào Lịch Google/Điện thoại của bạn.</p>
+                ${payload.location ? `<p>📍 Địa điểm: <b>${payload.location}</b></p>` : ''}
+                <p>Đã sẵn sàng thêm <b>${payload.dates.length} ngày</b> vào Lịch của bạn.</p>
                 <br>
                 <a id="downloadBtn" class="btn" href="${downloadUrl}" download="su-kien.ics">📅 THÊM TẤT CẢ VÀO LỊCH</a>
             `;
 
         } catch (e) {
-            document.getElementById('app').innerHTML = `<h3>Lỗi đọc dữ liệu mã QR!</h3>`;
+            console.error(e);
+            document.getElementById('app').innerHTML = `
+                <h3>⚠️ Không thể đọc dữ liệu mã QR!</h3>
+                <p style="font-size: 13px; color: #666;">Mã QR có thể chứa quá nhiều ngày hoặc dữ liệu bị hỏng. Hãy thử tạo lại với ít ngày hơn hoặc nhập lại thông tin ngắn gọn hơn.</p>
+            `;
         }
 
     } else {
@@ -88,8 +111,8 @@
             <h2>Tạo QR Lịch Đẹp</h2>
             
             <div class="row">
-                <div class="form-group" style="flex: 0.3;">
-                    <label>Biểu tượng:</label>
+                <div class="form-group" style="flex: 0.35;">
+                    <label>Icon:</label>
                     <select id="icon">
                         <option value="🎮">🎮 Esports</option>
                         <option value="⚽">⚽ Thể thao</option>
@@ -99,7 +122,7 @@
                         <option value="🔥">🔥 Gấp/Hot</option>
                     </select>
                 </div>
-                <div class="form-group" style="flex: 0.7;">
+                <div class="form-group" style="flex: 0.65;">
                     <label for="title">Tên sự kiện / Chủ đề:</label>
                     <input type="text" id="title" placeholder="Ví dụ: [R32] Trận 80: 1L vs 3rd">
                 </div>
@@ -107,12 +130,12 @@
 
             <div class="form-group">
                 <label for="location">Địa điểm (Location):</label>
-                <input type="text" id="location" placeholder="Ví dụ: Nhà thi đấu / Atlanta / Zoom">
+                <input type="text" id="location" placeholder="Ví dụ: Atlanta / Sân A / Zoom">
             </div>
 
             <div class="form-group">
                 <label for="multiDates">Chọn các ngày diễn ra:</label>
-                <input type="text" id="multiDates" placeholder="Nhấp chọn nhiều ngày trên lịch...">
+                <input type="text" id="multiDates" placeholder="Nhấp chọn các ngày trên lịch...">
             </div>
 
             <div class="row">
@@ -148,16 +171,6 @@
         });
     }
 
-    function formatICSDate(dateObj) {
-        const year = dateObj.getUTCFullYear();
-        const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(dateObj.getUTCDate()).padStart(2, '0');
-        const hours = String(dateObj.getUTCHours()).padStart(2, '0');
-        const minutes = String(dateObj.getUTCMinutes()).padStart(2, '0');
-        const seconds = String(dateObj.getUTCSeconds()).padStart(2, '0');
-        return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
-    }
-
     function generateQRCode() {
         const icon = document.getElementById('icon').value;
         const title = document.getElementById('title').value.trim();
@@ -175,6 +188,7 @@
 
         const [hours, minutes] = timeVal.split(':').map(Number);
         
+        // Tối ưu định dạng ngày tháng để chuỗi mã hóa cực ngắn
         const dateISOList = selectedDates.map(d => {
             const dt = new Date(d);
             dt.setHours(hours, minutes, 0);
@@ -190,18 +204,23 @@
             dates: dateISOList
         };
 
-        const encodedData = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-        const resultUrl = `${window.location.origin}${window.location.pathname}?data=${encodedData}`;
+        try {
+            const jsonStr = JSON.stringify(payload);
+            const encodedData = utf8_to_b64(jsonStr);
+            const resultUrl = `${window.location.origin}${window.location.pathname}?data=${encodeURIComponent(encodedData)}`;
 
-        const canvas = document.getElementById('qrCanvas');
-        new QRious({
-            element: canvas,
-            value: resultUrl,
-            size: 260,
-            level: 'L'
-        });
+            const canvas = document.getElementById('qrCanvas');
+            new QRious({
+                element: canvas,
+                value: resultUrl,
+                size: 260,
+                level: 'L'
+            });
 
-        canvas.style.display = 'block';
+            canvas.style.display = 'block';
+        } catch (err) {
+            alert("Lỗi khi tạo QR! Nội dung quá dài, vui lòng bớt số lượng ngày chọn.");
+        }
     }
 </script>
 
