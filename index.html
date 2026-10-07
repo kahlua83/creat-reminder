@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Work hard / Play hard</title>
+    <title>WORK HARD / PLAY HARD</title>
     
     <!-- Favicon icon lịch chuyên nghiệp -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
@@ -13,39 +13,1236 @@
     <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lora:wght@600;700&display=swap"
+        rel="stylesheet"
+    >
     <style>
+        /* ==================================================
+        DESIGN SYSTEM
+        Modern Vintage
+        ================================================== */
+
+        :root {
+            /* Background */
+            --bg: #eee8dc;
+            --surface: #faf7f0;
+            --surface-secondary: #f1eadf;
+            --input-bg: #fffaf2;
+
+            /* Text */
+            --text: #302f2a;
+            --text-secondary: #756f65;
+            --text-soft: #948c80;
+
+            /* Border */
+            --border: #d8cebe;
+            --border-hover: #b9aa96;
+
+            /* Accent - warm terracotta */
+            --accent: #9a654d;
+            --accent-hover: #80513d;
+            --accent-soft: #ead9cd;
+            --button-bg: #8f5d42;
+            --button-hover: #744832;    
+
+            /* Secondary vintage olive */
+            --olive: #70745d;
+
+            /* Status */
+            --danger: #a55648;
+
+            /* Shadow */
+            --shadow:
+                0 16px 45px rgba(74, 62, 46, 0.09),
+                0 2px 8px rgba(74, 62, 46, 0.05);
+
+            /* UI */
+            --radius-card: 18px;
+            --radius-control: 9px;
+
+            --control-height: 44px;
+        }
+
+
+        /* ==================================================
+        DARK MODE VARIABLES
+        ================================================== */
+
+        body.dark-mode {
+            --bg: #1b1c19;
+            --surface: #262722;
+            --surface-secondary: #30312a;
+            --input-bg: #20231e;
+
+            --text: #eee8dc;
+            --text-secondary: #b4ad9f;
+            --text-soft: #8e897e;
+
+            --border: #454b40;
+            --border-hover: #646b5b;
+
+            --accent: #ca8968;
+            --accent-hover: #dfa080;
+            --accent-soft: #45352c;
+            --button-bg: #bd7958;
+            --button-hover: #ce8967;
+
+            --olive: #a5aa8c;
+
+            --danger: #d37b68;
+
+            --shadow:
+                0 18px 50px rgba(0, 0, 0, 0.25),
+                0 3px 10px rgba(0, 0, 0, 0.18);
+        }
+
+        body.dark-mode select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23bd7958' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        }
+
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 480px; text-align: center; }
-        h2 { margin-top: 0; color: #0078d4; font-size: 24px; font-weight: 700; }
-        .form-group { margin-bottom: 15px; text-align: left; }
-        label { display: block; margin-bottom: 6px; font-weight: 600; color: #333; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; background-color: #fff; }
-        .row { display: flex; gap: 10px; }
-        .row .form-group { flex: 1; }
-        .checkbox-group { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; text-align: left; cursor: pointer; }
-        .checkbox-group input { width: auto; cursor: pointer; }
-        .checkbox-group label { margin-bottom: 0; cursor: pointer; font-weight: 600; color: #0078d4; }
-        .btn { width: 100%; padding: 14px; background: #0078d4; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 10px; }
-        .btn:hover { background: #005a9e; }
-        .btn-download { background: #107c41; margin-top: 12px; }
-        .btn-download:hover { background: #0b582e; }
-        #qr-container { margin-top: 20px; display: flex; flex-direction: column; align-items: center; }
-        canvas { border: 8px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 8px; display: none; }
-        .desc-text { text-align: left; background: #f8f9fa; padding: 10px; border-radius: 6px; border-left: 3px solid #0078d4; font-size: 13px; white-space: pre-wrap; word-break: break-word; }
-        #repeatOptions { display: none; background: #f0f4f8; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px dashed #0078d4; }
-        #customLocationContainer { background: #f9fbfd; padding: 12px; border-radius: 8px; border: 1px solid #e1e8ed; margin-bottom: 15px; }
-        .location-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .location-item span { font-size: 13px; font-weight: bold; width: 110px; text-align: left; color: #444; }
-        .location-item input { flex: 1; padding: 8px; }
-        .hint-text { font-size: 11px; color: #666; margin-top: 3px; }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+
+            background: var(--bg);
+            color: var(--text);
+
+            margin: 0;
+            padding: 32px 20px;
+
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+
+            min-height: 100vh;
+
+            -webkit-font-smoothing: antialiased;
+
+            transition:
+                background-color 0.3s ease,
+                color 0.3s ease;
+        }
+
+
+        .card {
+            width: 100%;
+            max-width: 540px;
+
+            padding: 30px;
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius-card);
+
+            box-shadow: var(--shadow);
+
+            text-align: center;
+
+            transition:
+                background-color 0.3s ease,
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+        }
+
+
+        h2 {
+            margin: 0 0 26px;
+
+            font-family: 'Lora', serif;
+            font-size: 34px;
+            line-height: 1.15;
+            font-weight: 700;
+
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+
+            color: var(--accent);
+        }
+
+        /* ==================================================
+        FORM SYSTEM
+        ================================================== */
+
+        .form-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            font-size: 13px;
+            line-height: 1.4;
+            font-weight: 600;
+
+            color: var(--text);
+        }
+
+
+        /* ==================================================
+        INPUT / SELECT / TEXTAREA
+        ================================================== */
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-size: 13px;
+            font-weight: 400;
+
+            color: var(--text);
+            background: var(--input-bg);
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius-control);
+
+            outline: none;
+
+            transition:
+                border-color 0.2s ease,
+                background-color 0.2s ease,
+                box-shadow 0.2s ease,
+                color 0.2s ease;
+        }
+
+        input,
+        select {
+            height: var(--control-height);
+            padding: 0 13px;
+        }
+
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+
+            padding-right: 42px;
+
+            cursor: pointer;
+
+            background-color: var(--input-bg);
+
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238f5d42' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+
+            background-repeat: no-repeat;
+
+            background-position:
+                right 14px center;
+
+            background-size:
+                14px 14px;
+        }
+
+        textarea {
+            min-height: 105px;
+            padding: 12px 13px;
+
+            line-height: 1.6;
+
+            resize: vertical;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--text-soft);
+        }
+
+
+        /* Focus */
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent);
+
+            box-shadow:
+                0 0 0 3px color-mix(
+                    in srgb,
+                    var(--accent) 14%,
+                    transparent
+                ),
+                0 6px 18px rgba(0, 0, 0, 0.05);
+        }
+
+
+        /* Hover */
+
+        input:hover,
+        select:hover,
+        textarea:hover {
+            border-color: var(--border-hover);
+        }
+
+        select:hover {
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.04);
+        }
+
+
+        /* ==================================================
+        ROW SYSTEM
+        ================================================== */
+
+        .row {
+            display: flex;
+            gap: 14px;
+
+            width: 100%;
+        }
+
+        .row .form-group {
+            flex: 1;
+            min-width: 0;
+        }
+
+
+        /* ==================================================
+        CHECKBOX
+        ================================================== */
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+
+            margin:
+                3px
+                0
+                13px;
+
+            text-align: left;
+
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+
+            width: 17px;
+            height: 17px;
+
+            flex: 0 0 17px;
+
+            padding: 0;
+            margin: 0;
+
+            border: 1.5px solid var(--border-hover);
+            border-radius: 4px;
+
+            background: var(--surface);
+
+            cursor: pointer;
+
+            position: relative;
+
+            transition:
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .checkbox-group input[type="checkbox"]:hover {
+            border-color: var(--accent);
+        }
+
+        .checkbox-group input[type="checkbox"]:checked {
+            background: var(--button-bg);
+            border-color: var(--accent);
+        }
+
+        .checkbox-group input[type="checkbox"]:checked::after {
+            content: "";
+
+            position: absolute;
+
+            left: 5px;
+            top: 2px;
+
+            width: 4px;
+            height: 8px;
+
+            border: solid #ffffff;
+            border-width: 0 2px 2px 0;
+
+            transform: rotate(45deg);
+        }
+
+        .checkbox-group input[type="checkbox"]:focus-visible {
+            box-shadow:
+                0 0 0 3px color-mix(
+                    in srgb,
+                    var(--accent) 18%,
+                    transparent
+                );
+        }
+
+        .checkbox-group label {
+            margin: 0;
+
+            color: var(--text-secondary);
+
+            font-size: 13px;
+            font-weight: 500;
+
+            cursor: pointer;
+        }
+
+
+        /* Repeat checkbox */
+
+        .checkbox-group label[for="isRepeatMode"] {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+
+        /* Location riêng từng ngày */
+
+        .checkbox-group label[for="isCustomLocation"] {
+            color: var(--danger) !important;
+            font-weight: 600;
+        }
+
+
+        /* ==================================================
+        SECONDARY PANELS
+        ================================================== */
+
+        #repeatOptions {
+            display: none;
+
+            padding: 16px;
+
+            margin:
+                5px
+                0
+                18px;
+
+            background: var(--surface-secondary);
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        #repeatOptions .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+
+        #customLocationContainer {
+            display: none;
+
+            padding: 16px;
+
+            margin-bottom: 18px;
+
+            background: var(--surface-secondary);
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        #customLocationContainer > label {
+            color: var(--olive) !important;
+        }
+
+
+        .location-item {
+            display: flex;
+            align-items: center;
+
+            gap: 12px;
+
+            margin-bottom: 10px;
+        }
+
+        .location-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .location-item span {
+            width: 115px;
+            flex: 0 0 115px;
+
+            font-size: 12px;
+            font-weight: 600;
+
+            text-align: left;
+
+            color: var(--text-secondary);
+        }
+
+        .location-item input {
+            flex: 1;
+            min-width: 0;
+        }
+
+
+        /* ==================================================
+        HELPER TEXT
+        ================================================== */
+
+        .hint-text {
+            margin-top: 6px;
+
+            font-size: 10px;
+            line-height: 1.5;
+
+            color: var(--text-soft);
+        }
+
+
+        /* ==================================================
+        BUTTON
+        ================================================== */
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 100%;
+            min-height: 46px;
+
+            margin-top: 7px;
+            padding: 0 18px;
+
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+
+            letter-spacing: 0.2px;
+
+            color: #ffffff;
+            background: var(--accent);
+
+            border: 1px solid var(--button-bg);
+            border-radius: 10px;
+
+            cursor: pointer;
+            text-decoration: none;
+
+            box-shadow:
+                0 4px 12px
+                color-mix(
+                    in srgb,
+                    var(--accent) 20%,
+                    transparent
+                );
+
+            transition:
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                transform 0.15s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--button-hover);
+            border-color: var(--button-hover);
+
+            transform: translateY(-1px);
+
+            box-shadow:
+                0 7px 16px
+                color-mix(
+                    in srgb,
+                    var(--accent) 24%,
+                    transparent
+                );
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+
+        .btn-download {
+            margin-top: 0;
+            min-height: 44px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 100%;
+
+            padding: 0 18px;
+
+            text-align: center;
+
+            background: var(--olive);
+            border-color: var(--olive);
+
+            color: #ffffff;
+
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .download-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: fit-content;
+
+            gap: 7px;
+
+            margin: 0 auto;
+
+            line-height: 1;
+        }
+
+        .download-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 14px;
+            height: 14px;
+
+            flex: 0 0 14px;
+
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .download-text {
+            display: block;
+
+            line-height: 1.2;
+            text-align: center;
+
+            white-space: nowrap;
+        }
+
+        .btn-download:hover {
+            background: var(--olive);
+            border-color: var(--olive);
+
+            transform: translateY(-1px);
+            filter: brightness(0.95);
+        }
+
+
+        /* ==================================================
+        QR RESULT
+        ================================================== */
+
+        #qr-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+
+            margin-top: 24px;
+            padding-top: 6px;
+        }
+
+        canvas {
+            display: none;
+
+            max-width: 100%;
+            height: auto;
+
+            padding: 10px;
+            background: #ffffff;
+
+            border: 1px solid var(--border);
+            border-radius: 14px;
+
+            box-shadow: var(--shadow);
+        }
+
+        .desc-text {
+            padding: 14px 15px;
+
+            text-align: left;
+
+            font-size: 12px;
+            line-height: 1.65;
+
+            color: var(--text-secondary);
+            background: var(--surface-secondary);
+
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 9px;
+
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* ==================================================
+        THEME TOGGLE
+        ================================================== */
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+
+            width: 44px;
+            height: 44px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 0;
+
+            background: var(--surface);
+            color: var(--text);
+
+            border: 1px solid var(--border);
+            border-radius: 50%;
+
+            font-size: 19px;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 5px 18px rgba(60, 50, 38, 0.10);
+
+            z-index: 999;
+
+            transition:
+                background-color 0.25s ease,
+                border-color 0.25s ease,
+                box-shadow 0.25s ease,
+                transform 0.15s ease;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-hover);
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 8px 22px rgba(60, 50, 38, 0.14);
+        }
+
+        .theme-toggle:active {
+            transform: scale(0.94);
+        }
+
+        #themeIcon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            line-height: 1;
+        }
+
+
+        /* ==================================================
+        THEME DETAILS
+        ================================================== */
+
+        .card h3 {
+            color: var(--accent) !important;
+        }
+
+        select option {
+            color: var(--text);
+            background: var(--surface);
+        }
+
+        #customLocationContainer > label {
+            color: var(--olive) !important;
+        }
+
+        #customLocationList > div {
+            color: var(--text-soft) !important;
+        }
+
+
+        /* ==================================================
+        FLATPICKR
+        ================================================== */
+
+        .flatpickr-calendar {
+            font-family: 'Be Vietnam Pro', sans-serif;
+
+            color: var(--text);
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            box-shadow: var(--shadow);
+        }
+
+        .flatpickr-calendar.arrowTop::before,
+        .flatpickr-calendar.arrowTop::after {
+            border-bottom-color: var(--surface);
+        }
+
+        .flatpickr-months,
+        .flatpickr-month,
+        .flatpickr-weekdays,
+        span.flatpickr-weekday {
+            background: var(--surface);
+        }
+
+        .flatpickr-month,
+        .flatpickr-current-month,
+        .flatpickr-current-month input.cur-year {
+            color: var(--text);
+            fill: var(--text);
+        }
+
+        .flatpickr-current-month .flatpickr-monthDropdown-months,
+        .flatpickr-current-month .flatpickr-monthDropdown-month {
+            color: var(--text);
+            background: var(--surface);
+        }
+
+        span.flatpickr-weekday {
+            color: var(--text-secondary);
+        }
+
+        .flatpickr-day {
+            color: var(--text);
+
+            border-color: transparent;
+        }
+
+        .flatpickr-day:hover {
+            color: var(--text);
+
+            background: var(--surface-secondary);
+            border-color: var(--border);
+        }
+
+        .flatpickr-day.today {
+            color: var(--accent);
+
+            border-color: var(--accent);
+        }
+
+        .flatpickr-day.today:hover {
+            color: #ffffff;
+
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .flatpickr-day.selected,
+        .flatpickr-day.startRange,
+        .flatpickr-day.endRange {
+            color: #ffffff;
+
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .flatpickr-day.prevMonthDay,
+        .flatpickr-day.nextMonthDay {
+            color: var(--text-soft);
+        }
+
+        .flatpickr-day.flatpickr-disabled {
+            color: var(--border);
+        }
+
+        .flatpickr-prev-month,
+        .flatpickr-next-month {
+            color: var(--text) !important;
+            fill: var(--text) !important;
+        }
+
+        .flatpickr-prev-month svg,
+        .flatpickr-next-month svg {
+            fill: var(--text) !important;
+        }
+
+        /* ==================================================
+        FLATPICKR TIME PICKER
+        ================================================== */
+
+        .time-display-input {
+            cursor: pointer;
+        }
+
+
+        /* Time-only popup */
+
+        .flatpickr-calendar.hasTime.noCalendar {
+            width: 240px;
+            min-width: 240px;
+
+            padding: 8px;
+
+            background: var(--surface);
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            box-shadow: var(--shadow);
+        }
+
+
+        /* Container */
+
+        .flatpickr-time {
+            height: 58px;
+            max-height: 58px;
+
+            display: flex;
+            align-items: center;
+
+            border-top: none;
+
+            background: transparent;
+        }
+
+
+        /* Hour / Minute */
+
+        .flatpickr-time .numInputWrapper {
+            width: 64px;
+            height: 42px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            overflow: hidden;
+
+            background: var(--input-bg);
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            transition:
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .flatpickr-time .numInputWrapper input {
+            width: 100%;
+            height: 100%;
+
+            padding: 0 16px 0 0;
+
+            text-align: center;
+
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+
+            color: var(--text) !important;
+            background: transparent !important;
+
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+
+            -webkit-text-fill-color: var(--text) !important;
+            caret-color: var(--accent);
+        }
+
+        /* Khi hover/focus thì chỉ đổi viền, không đổi nền trắng */
+
+        .flatpickr-time .numInputWrapper:hover,
+        .flatpickr-time .numInputWrapper:focus-within {
+            border-color: var(--accent);
+
+            box-shadow:
+                0 0 0 2px color-mix(
+                    in srgb,
+                    var(--accent) 14%,
+                    transparent
+                );
+        }
+
+        .flatpickr-time .numInputWrapper input:hover,
+        .flatpickr-time .numInputWrapper input:focus,
+        .flatpickr-time .numInputWrapper input:active {
+            color: var(--text) !important;
+            background: transparent !important;
+            -webkit-text-fill-color: var(--text) !important;
+
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+
+        /* Chặn style autofill / trắng của WebKit */
+
+        .flatpickr-time .numInputWrapper input:-webkit-autofill,
+        .flatpickr-time .numInputWrapper input:-webkit-autofill:hover,
+        .flatpickr-time .numInputWrapper input:-webkit-autofill:focus,
+        .flatpickr-time .numInputWrapper input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
+            -webkit-text-fill-color: var(--text) !important;
+            box-shadow: 0 0 0 1000px var(--input-bg) inset !important;
+        }
+
+
+        /* ":" separator */
+
+        .flatpickr-time-separator {
+            margin: 0 6px;
+
+            color: var(--text-secondary);
+
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+
+        /* AM / PM */
+
+        .flatpickr-time .flatpickr-am-pm {
+            height: 42px;
+            min-width: 46px;
+
+            margin-left: 8px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-family: 'Be Vietnam Pro', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+
+            color: var(--text) !important;
+            background: var(--input-bg) !important;
+
+            border: 1px solid var(--border);
+            border-radius: 8px;
+
+            transition:
+                color 0.2s ease,
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .flatpickr-time .flatpickr-am-pm:hover,
+        .flatpickr-time .flatpickr-am-pm:focus {
+            color: #ffffff !important;
+
+            background: var(--accent) !important;
+            border-color: var(--accent);
+
+            box-shadow:
+                0 0 0 2px color-mix(
+                    in srgb,
+                    var(--accent) 14%,
+                    transparent
+                );
+        }
+
+
+        .flatpickr-time .flatpickr-am-pm:hover {
+            color: #ffffff;
+
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+
+        /* Arrow tăng giảm giờ */
+
+        .flatpickr-time .numInputWrapper span.arrowUp::after {
+            border-bottom-color: var(--accent);
+        }
+
+        .flatpickr-time .numInputWrapper span.arrowDown::after {
+            border-top-color: var(--accent);
+        }
+
+
+        /* Focus */
+
+        .flatpickr-time input:focus {
+            border-color: var(--accent);
+
+            box-shadow:
+                0 0 0 2px
+                color-mix(
+                    in srgb,
+                    var(--accent) 14%,
+                    transparent
+                );
+        }
+
+        /* ==================================================
+        SCROLLBAR
+        ================================================== */
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-hover);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-soft);
+        }
+
+        /* ==================================================
+        RESPONSIVE
+        ================================================== */
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 20px 14px;
+            }
+
+            .card {
+                padding: 24px 20px;
+                border-radius: 15px;
+            }
+
+            h2 {
+                font-size: 28px;
+            }
+
+            .row {
+                gap: 10px;
+            }
+
+            .location-item {
+                flex-direction: column;
+                align-items: stretch;
+
+                gap: 6px;
+            }
+
+            .location-item span {
+                width: auto;
+                flex: none;
+            }
+
+            .event-header-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+
+        /* ==================================================
+        EVENT HEADER ROW
+        ================================================== */
+
+        .event-header-row {
+            display: grid;
+
+            grid-template-columns:
+                minmax(140px, 0.9fr)
+                minmax(0, 1.5fr);
+
+            gap: 14px;
+        }
+
+        .event-header-row .form-group {
+            min-width: 0;
+        }
     </style>
 </head>
 <body>
 
+<button
+    id="themeToggle"
+    class="theme-toggle"
+    type="button"
+    aria-label="Chuyển chế độ sáng tối"
+    title="Chuyển chế độ sáng tối"
+>
+    <span id="themeIcon">☀️</span>
+</button>
+
 <div class="card" id="app"></div>
 
 <script>
+    // =========================
+    // LIGHT / DARK MODE
+    // =========================
+
+    const THEME_STORAGE_KEY = 'creat-reminder-theme';
+
+    function applyTheme(theme) {
+        const isDark = theme === 'dark';
+
+        document.body.classList.toggle('dark-mode', isDark);
+
+        const themeIcon = document.getElementById('themeIcon');
+        const themeToggle = document.getElementById('themeToggle');
+
+        if (themeIcon) {
+            themeIcon.textContent = isDark ? '🌙' : '☀️';
+        }
+
+        if (themeToggle) {
+            themeToggle.setAttribute(
+                'aria-label',
+                isDark
+                    ? 'Chuyển sang chế độ sáng'
+                    : 'Chuyển sang chế độ tối'
+            );
+
+            themeToggle.setAttribute(
+                'title',
+                isDark
+                    ? 'Chuyển sang chế độ sáng'
+                    : 'Chuyển sang chế độ tối'
+            );
+        }
+    }
+
+    function toggleTheme() {
+        const isDark = document.body.classList.contains('dark-mode');
+
+        const newTheme = isDark ? 'light' : 'dark';
+
+        applyTheme(newTheme);
+
+        localStorage.setItem(THEME_STORAGE_KEY, newTheme);
+    }
+
+    // Lấy theme đã lưu trước đó.
+    // Nếu chưa từng chọn thì mặc định là Light Mode.
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'light';
+
+    applyTheme(savedTheme);
+
+    const themeToggleButton = document.getElementById('themeToggle');
+
+    if (themeToggleButton) {
+        themeToggleButton.addEventListener('click', toggleTheme);
+    }
+
     function utf8_to_b64(str) {
         return window.btoa(unescape(encodeURIComponent(str)));
     }
@@ -126,8 +1323,9 @@
         document.getElementById('app').innerHTML = `
             <h2>Work hard / Play hard</h2>
             
-            <div class="row">
-                <div class="form-group" style="flex: 0.35;">
+            <div class="row event-header-row">
+
+                <div class="form-group">
                     <label>Icon:</label>
                     <select id="icon">
                         <option value="💼">💼 Công việc</option>
@@ -139,7 +1337,7 @@
                         <option value="🔥">🔥 Khẩn cấp</option>
                     </select>
                 </div>
-                <div class="form-group" style="flex: 0.65;">
+                <div class="form-group">
                     <label for="title">Tên sự kiện / Chủ đề:</label>
                     <input type="text" id="title" placeholder="Ví dụ: [J8-VEDC] Cung cấp internet">
                 </div>
@@ -197,11 +1395,21 @@
             <div class="row">
                 <div class="form-group">
                     <label for="startTime">Giờ bắt đầu:</label>
-                    <input type="time" id="startTime" value="06:00">
+                    <input
+                        type="text"
+                        id="startTime"
+                        value="06:00"
+                        autocomplete="off"
+                    >
                 </div>
                 <div class="form-group">
                     <label for="endTime">Giờ kết thúc:</label>
-                    <input type="time" id="endTime" value="17:00">
+                    <input
+                        type="text"
+                        id="endTime"
+                        value="17:00"
+                        autocomplete="off"
+                    >
                 </div>
             </div>
 
@@ -214,17 +1422,64 @@
             
             <div id="qr-container">
                 <canvas id="qrCanvas"></canvas>
-                <a id="directDownloadBtn" class="btn btn-download" style="display:none;" href="#">📥 TẢI FILE .ICS TRỰC TIẾP</a>
+                <a id="directDownloadBtn" class="btn btn-download" style="display:none;" href="#">
+                    <span class="download-content">
+                        <span class="download-icon">↓</span>
+                        <span class="download-text">TẢI FILE .ICS TRỰC TIẾP</span>
+                    </span>
+                </a>
             </div>
         `;
 
         setTimeout(() => {
+
             initFlatpickr("multiple");
+
+            initTimePickers();
+
         }, 100);
     }
 
     let datePickerInstance = null;
+    let startTimePickerInstance = null;
+    let endTimePickerInstance = null;
 
+    function initTimePickers() {
+
+        const commonTimeOptions = {
+            enableTime: true,
+            noCalendar: true,
+
+            dateFormat: "H:i",
+
+            altInput: true,
+            altFormat: "h:i K",
+
+            time_24hr: false,
+
+            minuteIncrement: 1,
+
+            allowInput: false,
+            disableMobile: true,
+
+            altInputClass: "time-display-input"
+        };
+
+
+        startTimePickerInstance = flatpickr("#startTime", {
+            ...commonTimeOptions,
+
+            defaultDate: "06:00"
+        });
+
+
+        endTimePickerInstance = flatpickr("#endTime", {
+            ...commonTimeOptions,
+
+            defaultDate: "17:00"
+        });
+    }
+    
     function initFlatpickr(mode) {
         if (datePickerInstance) {
             datePickerInstance.destroy();
@@ -406,23 +1661,7 @@
                 location: loc
             });
         });
-// Thay URL Apps Script bạn vừa copy ở Bước 1 vào đây:
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWsp7idcLefOfUtRPUcdmW_xRsVdVgaDEomXVhUIY9bZ9a5mhI_un-YNft5nEBR3fH/exec";
 
-// Đoạn code này đặt bên trong hàm generateQRCode() trước khi hiện canvas:
-fetch(SCRIPT_URL, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-        title: title,
-        icon: icon,
-        totalDates: dates.length,
-        location: commonLocation || (isCustomLocation ? "Nhiều địa điểm" : ""),
-        desc: description
-    })
-}).catch(err => console.log("Lỗi ghi nhận log:", err));
-        
         const payload = {
             icon: icon,
             title: title,
@@ -451,15 +1690,13 @@ fetch(SCRIPT_URL, {
             const dlBtn = document.getElementById('directDownloadBtn');
             dlBtn.href = downloadUrl;
             dlBtn.download = `${title.replace(/[^a-zA-Z0-9]/g, '_')}.ics`;
-            dlBtn.style.display = 'inline-block';
+            dlBtn.style.display = 'flex';
 
         } catch (err) {
             alert("Nội dung quá dài! Vui lòng rút ngắn ghi chú hoặc rút ngắn khoảng lặp lại.");
         }
     }
 </script>
-<div style="position: fixed; bottom: 12px; left: 0; width: 100%; text-align: center; z-index: 100;">
-    <a href="admin.html" style="color: #888; font-size: 12px; text-decoration: none; background: rgba(255, 255, 255, 0.9); padding: 5px 12px; border-radius: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.08);">📊 Trang quản trị / Thống kê</a>
-</div>
+
 </body>
 </html>
