@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reminders QR Code Generator</title>
+    <title>Tạo QR Lịch Đẹp & Chuyên Nghiệp</title>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -18,7 +18,9 @@
         .form-group { margin-bottom: 15px; text-align: left; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #333; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-        .btn { width: 100%; padding: 14px; background: #0078d4; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+        .row { display: flex; gap: 10px; }
+        .row .form-group { flex: 1; }
+        .btn { width: 100%; padding: 14px; background: #0078d4; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 10px; }
         .btn:hover { background: #005a9e; }
         #qr-container { margin-top: 20px; display: flex; flex-direction: column; align-items: center; }
         canvas { border: 8px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 8px; display: none; }
@@ -27,62 +29,54 @@
 </head>
 <body>
 
-<div class="card" id="app">
-    <!-- Nội dung tự động thay đổi dựa trên tham số URL -->
-</div>
+<div class="card" id="app"></div>
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const dataParam = urlParams.get('data');
 
     if (dataParam) {
-        // === GIAO DIỆN KHI NGƯỜI DÙNG QUÉT MÃ QR ===
+        // === GIAO DIỆN KHI QUÉT QR ===
         try {
             const payload = JSON.parse(decodeURIComponent(escape(atob(dataParam))));
-            
-            // Sắp xếp các ngày theo thứ tự tăng dần
             const sortedDates = payload.dates.map(d => new Date(d)).sort((a, b) => a - b);
-            const firstDate = sortedDates[0];
-            const endFirstDate = new Date(firstDate.getTime() + 30 * 60000);
-
-            // Chuyển danh sách các ngày còn lại thành chuỗi RDATE/RDATE trong quy tắc lặp lại
-            const rdateList = sortedDates.map(d => formatICSDate(d)).join(',');
-
+            
+            // Xây dựng file .ics chuẩn có Location và Emoji hiển thị đẹp
             let icsLines = [
                 "BEGIN:VCALENDAR",
                 "VERSION:2.0",
-                "PRODID:-//QR Reminders//EN",
+                "PRODID:-//Event Calendar//VN",
                 "CALSCALE:GREGORIAN",
-                "METHOD:PUBLISH",
-                "BEGIN:VEVENT",
-                `SUMMARY:${payload.title}`,
-                `DTSTART:${formatICSDate(firstDate)}`,
-                `DTEND:${formatICSDate(endFirstDate)}`,
-                `RDATE;VALUE=DATE-TIME:${rdateList}`,
-                `PRIORITY:${payload.priority}`
+                "METHOD:PUBLISH"
             ];
 
-            if (payload.desc) {
-                icsLines.push(`DESCRIPTION:${payload.desc}`);
-            }
+            sortedDates.forEach(d => {
+                const startDT = new Date(d);
+                // Thời lượng mặc định 2 tiếng giống trận đấu thể thao
+                const endDT = new Date(startDT.getTime() + (payload.duration || 120) * 60000); 
 
-            icsLines.push("END:VEVENT");
+                icsLines.push("BEGIN:VEVENT");
+                icsLines.push(`SUMMARY:${payload.icon} ${payload.title}`);
+                icsLines.push(`DTSTART:${formatICSDate(startDT)}`);
+                icsLines.push(`DTEND:${formatICSDate(endDT)}`);
+                if (payload.location) icsLines.push(`LOCATION:${payload.location}`);
+                if (payload.desc) icsLines.push(`DESCRIPTION:${payload.desc}`);
+                icsLines.push("END:VEVENT");
+            });
+
             icsLines.push("END:VCALENDAR");
 
             const icsContent = icsLines.join("\r\n");
-
-            document.getElementById('app').innerHTML = `
-                <h2>${payload.title}</h2>
-                <p>Thêm <b>${payload.dates.length} ngày sự kiện</b> vào Lịch / Outlook / Google Calendar của bạn:</p>
-                <br>
-                <a id="downloadBtn" class="btn" href="#">📅 THÊM TẤT CẢ VÀO LỊCH</a>
-            `;
-
             const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8;' });
             const downloadUrl = URL.createObjectURL(blob);
-            const dlBtn = document.getElementById('downloadBtn');
-            dlBtn.href = downloadUrl;
-            dlBtn.download = 'su-kien.ics';
+
+            document.getElementById('app').innerHTML = `
+                <h2>${payload.icon} ${payload.title}</h2>
+                <p>Địa điểm: <b>${payload.location || 'Chưa xác định'}</b></p>
+                <p>Đã sẵn sàng thêm <b>${payload.dates.length} ngày</b> vào Lịch Google/Điện thoại của bạn.</p>
+                <br>
+                <a id="downloadBtn" class="btn" href="${downloadUrl}" download="su-kien.ics">📅 THÊM TẤT CẢ VÀO LỊCH</a>
+            `;
 
         } catch (e) {
             document.getElementById('app').innerHTML = `<h3>Lỗi đọc dữ liệu mã QR!</h3>`;
@@ -91,31 +85,56 @@
     } else {
         // === GIAO DIỆN TẠO MÃ QR ===
         document.getElementById('app').innerHTML = `
-            <h2>Tạo QR Reminders / Lịch</h2>
-            <div class="form-group">
-                <label for="title">Chủ đề / Tên nhắc nhở:</label>
-                <input type="text" id="title" placeholder="Ví dụ: [FANG-FPL] GIẢI ESPORTS SINH VIÊN">
+            <h2>Tạo QR Lịch Đẹp</h2>
+            
+            <div class="row">
+                <div class="form-group" style="flex: 0.3;">
+                    <label>Biểu tượng:</label>
+                    <select id="icon">
+                        <option value="🎮">🎮 Esports</option>
+                        <option value="⚽">⚽ Thể thao</option>
+                        <option value="🏆">🏆 Giải đấu</option>
+                        <option value="📅">📅 Sự kiện</option>
+                        <option value="💰">💰 Thu tiền</option>
+                        <option value="🔥">🔥 Gấp/Hot</option>
+                    </select>
+                </div>
+                <div class="form-group" style="flex: 0.7;">
+                    <label for="title">Tên sự kiện / Chủ đề:</label>
+                    <input type="text" id="title" placeholder="Ví dụ: [R32] Trận 80: 1L vs 3rd">
+                </div>
             </div>
+
             <div class="form-group">
-                <label for="multiDates">Chọn các ngày diễn ra sự kiện:</label>
-                <input type="text" id="multiDates" placeholder="Nhấn vào đây để chọn nhiều ngày...">
-                <div class="hint">Nhấp chọn nhiều ngày tùy ý trên bảng lịch.</div>
+                <label for="location">Địa điểm (Location):</label>
+                <input type="text" id="location" placeholder="Ví dụ: Nhà thi đấu / Atlanta / Zoom">
             </div>
+
             <div class="form-group">
-                <label for="time">Giờ nhắc nhở:</label>
-                <input type="time" id="time" value="09:00">
+                <label for="multiDates">Chọn các ngày diễn ra:</label>
+                <input type="text" id="multiDates" placeholder="Nhấp chọn nhiều ngày trên lịch...">
             </div>
+
+            <div class="row">
+                <div class="form-group">
+                    <label for="time">Giờ bắt đầu:</label>
+                    <input type="time" id="time" value="08:00">
+                </div>
+                <div class="form-group">
+                    <label for="duration">Thời lượng:</label>
+                    <select id="duration">
+                        <option value="60">1 Tiếng</option>
+                        <option value="120" selected>2 Tiếng</option>
+                        <option value="180">3 Tiếng</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="form-group">
-                <label for="priority">Mức độ quan trọng:</label>
-                <select id="priority">
-                    <option value="9">Bình thường</option>
-                    <option value="1">🔥 Khẩn cấp / Quan trọng</option>
-                </select>
+                <label for="description">Ghi chú chi tiết:</label>
+                <textarea id="description" rows="2" placeholder="Ghi chú thêm..."></textarea>
             </div>
-            <div class="form-group">
-                <label for="description">Ghi chú thêm:</label>
-                <textarea id="description" rows="3" placeholder="Ghi chú..."></textarea>
-            </div>
+
             <button class="btn" onclick="generateQRCode()">TẠO MÃ QR</button>
             <div id="qr-container">
                 <canvas id="qrCanvas"></canvas>
@@ -140,15 +159,17 @@
     }
 
     function generateQRCode() {
+        const icon = document.getElementById('icon').value;
         const title = document.getElementById('title').value.trim();
+        const location = document.getElementById('location').value.trim();
         const datePicker = document.getElementById('multiDates')._flatpickr;
         const selectedDates = datePicker.selectedDates;
         const timeVal = document.getElementById('time').value;
-        const priority = document.getElementById('priority').value;
+        const duration = parseInt(document.getElementById('duration').value);
         const description = document.getElementById('description').value.trim();
 
         if (!title || selectedDates.length === 0) {
-            alert("Vui lòng nhập tên nhắc nhở và chọn ít nhất 1 ngày!");
+            alert("Vui lòng điền tên sự kiện và chọn ít nhất 1 ngày!");
             return;
         }
 
@@ -161,9 +182,11 @@
         });
 
         const payload = {
+            icon: icon,
             title: title,
+            location: location,
             desc: description,
-            priority: priority,
+            duration: duration,
             dates: dateISOList
         };
 
