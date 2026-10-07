@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reminders QR Code Generator</title>
+    <title>Work hard / Play hard</title>
     
+    <!-- Favicon icon lịch chuyên nghiệp -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
@@ -14,7 +17,7 @@
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; justify-content: center; }
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 480px; text-align: center; }
-        h2 { margin-top: 0; color: #0078d4; }
+        h2 { margin-top: 0; color: #0078d4; font-size: 24px; font-weight: 700; }
         .form-group { margin-bottom: 15px; text-align: left; }
         label { display: block; margin-bottom: 6px; font-weight: 600; color: #333; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; background-color: #fff; }
@@ -35,6 +38,7 @@
         .location-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
         .location-item span { font-size: 13px; font-weight: bold; width: 110px; text-align: left; color: #444; }
         .location-item input { flex: 1; padding: 8px; }
+        .hint-text { font-size: 11px; color: #666; margin-top: 3px; }
     </style>
 </head>
 <body>
@@ -92,7 +96,7 @@
     const dataParam = urlParams.get('data');
 
     if (dataParam) {
-        // === GIAO DIỆN QUÉT QR ===
+        // === GIAO DIỆN QUÉT MÃ QR ===
         try {
             const rawJson = b64_to_utf8(dataParam);
             const payload = JSON.parse(rawJson);
@@ -101,7 +105,8 @@
             const downloadUrl = URL.createObjectURL(blob);
 
             document.getElementById('app').innerHTML = `
-                <h2>${payload.icon} ${payload.title}</h2>
+                <h2>Work hard / Play hard</h2>
+                <h3 style="color:#0078d4; margin-top:0;">${payload.icon} ${payload.title}</h3>
                 <p style="text-align:left;">📅 <b>Số ngày diễn ra:</b> ${payload.dates.length} ngày</p>
                 ${payload.desc ? `<div class="desc-text"><b>📝 Ghi chú:</b>\n${payload.desc}</div>` : ''}
                 <br>
@@ -119,18 +124,19 @@
     } else {
         // === GIAO DIỆN TẠO MÃ QR ===
         document.getElementById('app').innerHTML = `
-            <h2>Tạo QR Lịch Đẹp</h2>
+            <h2>Work hard / Play hard</h2>
             
             <div class="row">
                 <div class="form-group" style="flex: 0.35;">
                     <label>Icon:</label>
                     <select id="icon">
-                        <option value="📅">📅 Sự kiện</option>
-                        <option value="🎮">🎮 Esports</option>
+                        <option value="💼">💼 Công việc</option>
+                        <option value="🎮">🎮 Esports / Game</option>
                         <option value="⚽">⚽ Thể thao</option>
                         <option value="🏆">🏆 Giải đấu</option>
+                        <option value="📅">📅 Sự kiện</option>
                         <option value="💰">💰 Thu tiền</option>
-                        <option value="🔥">🔥 Gấp/Hot</option>
+                        <option value="🔥">🔥 Khẩn cấp</option>
                     </select>
                 </div>
                 <div class="form-group" style="flex: 0.65;">
@@ -155,17 +161,17 @@
                     <select id="repeatType" onchange="updateRepeatUnitLabel()">
                         <option value="weekly">Hàng tuần (Cùng Thứ hàng tuần)</option>
                         <option value="monthly">Hàng tháng (Cùng Ngày trong tháng)</option>
-                        <option value="yearly">Hàng năm (Cùng Ngày & Tháng trong năm)</option>
+                        <option value="yearly">Hàng năm (Cùng Ngày & Tháng)</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label id="repeatEndLabel" for="repeatCount">Thời gian kéo dài lặp lại:</label>
+                    <label id="repeatEndLabel" for="repeatCount">Thời gian lặp lại:</label>
                     <select id="repeatCount">
-                        <option value="4">Trong 4 tuần (1 tháng)</option>
-                        <option value="8">Trong 8 tuần (2 tháng)</option>
-                        <option value="12">Trong 12 tuần (3 tháng)</option>
-                        <option value="24">Trong 24 tuần (6 tháng)</option>
-                        <option value="52">Trong 52 tuần (1 năm)</option>
+                        <option value="4">Kéo dài 4 tuần (1 tháng)</option>
+                        <option value="8">Kéo dài 8 tuần (2 tháng)</option>
+                        <option value="12" selected>Kéo dài 12 tuần (3 tháng)</option>
+                        <option value="24">Kéo dài 24 tuần (6 tháng)</option>
+                        <option value="52">Kéo dài 52 tuần (1 năm)</option>
                     </select>
                 </div>
             </div>
@@ -176,12 +182,13 @@
             </div>
 
             <div class="form-group" id="commonLocationGroup">
-                <label for="location">Địa điểm (Location chung cho tất cả các ngày):</label>
-                <input type="text" id="location" placeholder="Ví dụ: Tỉnh An Giang / Sân A / Zoom">
+                <label for="location">Địa điểm (Nhập Tên / Đố địa chỉ / Dán link Google Maps):</label>
+                <input type="text" id="location" placeholder="Tỉnh An Giang hoặc https://maps.app.goo.gl/...">
+                <div class="hint-text">Dán link Google Maps để điện thoại hiện nút chỉ đường 1-touch!</div>
             </div>
 
             <div id="customLocationContainer" style="display: none;">
-                <label style="margin-bottom: 10px; color: #0078d4;">📍 Nhập Địa điểm tương ứng từng ngày:</label>
+                <label style="margin-bottom: 10px; color: #0078d4;">📍 Nhập Địa điểm / Link Google Maps từng ngày:</label>
                 <div id="customLocationList">
                     <div style="font-size: 12px; color: #888;">Vui lòng chọn ngày ở ô trên trước...</div>
                 </div>
@@ -212,7 +219,7 @@
         `;
 
         setTimeout(() => {
-            initFlatpickr("single");
+            initFlatpickr("multiple");
         }, 100);
     }
 
@@ -241,11 +248,11 @@
         dateInput.value = "";
         if (isRepeat) {
             repeatOptions.style.display = "block";
-            initFlatpickr("single"); // Chế độ Lặp chọn 1 ngày mốc ban đầu
+            initFlatpickr("single");
             updateRepeatUnitLabel();
         } else {
             repeatOptions.style.display = "none";
-            initFlatpickr("multiple"); // Tắt lặp lại -> Cho phép chọn nhiều ngày tự do
+            initFlatpickr("multiple");
         }
         renderCustomLocationFields();
     }
@@ -343,7 +350,7 @@
             html += `
                 <div class="location-item">
                     <span>🗓️ ${dateStr}:</span>
-                    <input type="text" class="custom-loc-input" data-date="${isoStr}" placeholder="Nhập địa điểm ngày ${dateStr}...">
+                    <input type="text" class="custom-loc-input" data-date="${isoStr}" placeholder="Tên / Link GG Maps ngày ${dateStr}...">
                 </div>
             `;
         });
