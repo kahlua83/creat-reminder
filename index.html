@@ -20,11 +20,15 @@
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
         .row { display: flex; gap: 10px; }
         .row .form-group { flex: 1; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; text-align: left; cursor: pointer; }
+        .checkbox-group input { width: auto; cursor: pointer; }
+        .checkbox-group label { margin-bottom: 0; cursor: pointer; font-weight: 600; color: #0078d4; }
         .btn { width: 100%; padding: 14px; background: #0078d4; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 10px; }
         .btn:hover { background: #005a9e; }
         #qr-container { margin-top: 20px; display: flex; flex-direction: column; align-items: center; }
         canvas { border: 8px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 8px; display: none; }
         .hint { font-size: 12px; color: #666; margin-top: 4px; }
+        .desc-text { text-align: left; background: #f8f9fa; padding: 10px; border-radius: 6px; border-left: 3px solid #0078d4; font-size: 13px; white-space: pre-wrap; word-break: break-word; }
     </style>
 </head>
 <body>
@@ -32,12 +36,10 @@
 <div class="card" id="app"></div>
 
 <script>
-    // Hàm mã hóa Unicode an toàn cho URL
     function utf8_to_b64(str) {
         return window.btoa(unescape(encodeURIComponent(str)));
     }
 
-    // Hàm giải mã Unicode an toàn
     function b64_to_utf8(str) {
         return decodeURIComponent(escape(window.atob(str)));
     }
@@ -70,16 +72,19 @@
                 "METHOD:PUBLISH"
             ];
 
+            // Xử lý xuống dòng trong ghi chú đúng chuẩn iCalendar (\n -> \\n)
+            const formattedDesc = payload.desc ? payload.desc.replace(/\r?\n/g, "\\n") : "";
+
             sortedDates.forEach(d => {
-                const startDT = new Date(d);
-                const endDT = new Date(startDT.getTime() + (payload.duration || 120) * 60000); 
+                const startDT = new Date(d.start);
+                const endDT = new Date(d.end);
 
                 icsLines.push("BEGIN:VEVENT");
                 icsLines.push(`SUMMARY:${payload.icon} ${payload.title}`);
                 icsLines.push(`DTSTART:${formatICSDate(startDT)}`);
                 icsLines.push(`DTEND:${formatICSDate(endDT)}`);
                 if (payload.location) icsLines.push(`LOCATION:${payload.location}`);
-                if (payload.desc) icsLines.push(`DESCRIPTION:${payload.desc}`);
+                if (formattedDesc) icsLines.push(`DESCRIPTION:${formattedDesc}`);
                 icsLines.push("END:VEVENT");
             });
 
@@ -91,8 +96,9 @@
 
             document.getElementById('app').innerHTML = `
                 <h2>${payload.icon} ${payload.title}</h2>
-                ${payload.location ? `<p>📍 Địa điểm: <b>${payload.location}</b></p>` : ''}
-                <p>Đã sẵn sàng thêm <b>${payload.dates.length} ngày</b> vào Lịch của bạn.</p>
+                ${payload.location ? `<p style="text-align:left;">📍 <b>Địa điểm:</b> ${payload.location}</p>` : ''}
+                <p style="text-align:left;">📅 <b>Số ngày sự kiện:</b> ${payload.dates.length} ngày</p>
+                ${payload.desc ? `<div class="desc-text"><b>📝 Ghi chú:</b>\n${payload.desc}</div>` : ''}
                 <br>
                 <a id="downloadBtn" class="btn" href="${downloadUrl}" download="su-kien.ics">📅 THÊM TẤT CẢ VÀO LỊCH</a>
             `;
@@ -101,7 +107,7 @@
             console.error(e);
             document.getElementById('app').innerHTML = `
                 <h3>⚠️ Không thể đọc dữ liệu mã QR!</h3>
-                <p style="font-size: 13px; color: #666;">Mã QR có thể chứa quá nhiều ngày hoặc dữ liệu bị hỏng. Hãy thử tạo lại với ít ngày hơn hoặc nhập lại thông tin ngắn gọn hơn.</p>
+                <p style="font-size: 13px; color: #666;">Mã QR bị hỏng hoặc dữ liệu quá dài. Hãy thử tạo lại với nội dung ngắn gọn hơn.</p>
             `;
         }
 
@@ -133,29 +139,30 @@
                 <input type="text" id="location" placeholder="Ví dụ: Atlanta / Sân A / Zoom">
             </div>
 
+            <div class="checkbox-group">
+                <input type="checkbox" id="isRangeMode" onchange="toggleDateMode()">
+                <label for="isRangeMode">Lặp lại liên tục (Chọn Từ ngày... Đến ngày...)</label>
+            </div>
+
             <div class="form-group">
-                <label for="multiDates">Chọn các ngày diễn ra:</label>
+                <label id="dateLabel" for="multiDates">Chọn các ngày diễn ra:</label>
                 <input type="text" id="multiDates" placeholder="Nhấp chọn các ngày trên lịch...">
             </div>
 
             <div class="row">
                 <div class="form-group">
-                    <label for="time">Giờ bắt đầu:</label>
-                    <input type="time" id="time" value="08:00">
+                    <label for="startTime">Giờ bắt đầu:</label>
+                    <input type="time" id="startTime" value="08:00">
                 </div>
                 <div class="form-group">
-                    <label for="duration">Thời lượng:</label>
-                    <select id="duration">
-                        <option value="60">1 Tiếng</option>
-                        <option value="120" selected>2 Tiếng</option>
-                        <option value="180">3 Tiếng</option>
-                    </select>
+                    <label for="endTime">Giờ kết thúc:</label>
+                    <input type="time" id="endTime" value="10:00">
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="description">Ghi chú chi tiết:</label>
-                <textarea id="description" rows="2" placeholder="Ghi chú thêm..."></textarea>
+                <label for="description">Ghi chú chi tiết (Hỗ trợ xuống dòng):</label>
+                <textarea id="description" rows="4" placeholder="Nhập ghi chú nhiều dòng...&#10;- Nội dung 1&#10;- Nội dung 2"></textarea>
             </div>
 
             <button class="btn" onclick="generateQRCode()">TẠO MÃ QR</button>
@@ -164,44 +171,100 @@
             </div>
         `;
 
-        flatpickr("#multiDates", {
-            mode: "multiple",
+        initFlatpickr("multiple");
+    }
+
+    let datePickerInstance = null;
+
+    function initFlatpickr(mode) {
+        if (datePickerInstance) datePickerInstance.destroy();
+        datePickerInstance = flatpickr("#multiDates", {
+            mode: mode,
             dateFormat: "Y-m-d",
             locale: "vn"
         });
+    }
+
+    function toggleDateMode() {
+        const isRange = document.getElementById('isRangeMode').checked;
+        const dateLabel = document.getElementById('dateLabel');
+        const dateInput = document.getElementById('multiDates');
+        
+        dateInput.value = "";
+        if (isRange) {
+            dateLabel.innerText = "Chọn khoảng thời gian (Từ ngày -> Đến ngày):";
+            dateInput.placeholder = "Chọn ngày bắt đầu và ngày kết thúc...";
+            initFlatpickr("range");
+        } else {
+            dateLabel.innerText = "Chọn các ngày diễn ra:";
+            dateInput.placeholder = "Nhấp chọn các ngày trên lịch...";
+            initFlatpickr("multiple");
+        }
     }
 
     function generateQRCode() {
         const icon = document.getElementById('icon').value;
         const title = document.getElementById('title').value.trim();
         const location = document.getElementById('location').value.trim();
-        const datePicker = document.getElementById('multiDates')._flatpickr;
-        const selectedDates = datePicker.selectedDates;
-        const timeVal = document.getElementById('time').value;
-        const duration = parseInt(document.getElementById('duration').value);
+        const selectedDates = datePickerInstance.selectedDates;
+        const startTimeVal = document.getElementById('startTime').value;
+        const endTimeVal = document.getElementById('endTime').value;
         const description = document.getElementById('description').value.trim();
+        const isRangeMode = document.getElementById('isRangeMode').checked;
 
-        if (!title || selectedDates.length === 0) {
-            alert("Vui lòng điền tên sự kiện và chọn ít nhất 1 ngày!");
+        if (!title) {
+            alert("Vui lòng nhập tên sự kiện!");
             return;
         }
 
-        const [hours, minutes] = timeVal.split(':').map(Number);
-        
-        // Tối ưu định dạng ngày tháng để chuỗi mã hóa cực ngắn
-        const dateISOList = selectedDates.map(d => {
-            const dt = new Date(d);
-            dt.setHours(hours, minutes, 0);
-            return dt.toISOString();
-        });
+        if (selectedDates.length === 0) {
+            alert("Vui lòng chọn ngày diễn ra!");
+            return;
+        }
+
+        const [startHours, startMinutes] = startTimeVal.split(':').map(Number);
+        const [endHours, endMinutes] = endTimeVal.split(':').map(Number);
+
+        let datePairList = [];
+
+        if (isRangeMode) {
+            if (selectedDates.length < 2) {
+                alert("Vui lòng chọn đầy đủ Ngày bắt đầu và Ngày kết thúc!");
+                return;
+            }
+            // Tạo danh sách các ngày liên tục từ ngày A đến ngày B
+            let currentDate = new Date(selectedDates[0]);
+            const endDate = new Date(selectedDates[1]);
+
+            while (currentDate <= endDate) {
+                const startDT = new Date(currentDate);
+                startDT.setHours(startHours, startMinutes, 0);
+
+                const endDT = new Date(currentDate);
+                endDT.setHours(endHours, endMinutes, 0);
+
+                datePairList.push({ start: startDT.toISOString(), end: endDT.toISOString() });
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+        } else {
+            // Danh sách các ngày chọn rời rạc
+            selectedDates.forEach(d => {
+                const startDT = new Date(d);
+                startDT.setHours(startHours, startMinutes, 0);
+
+                const endDT = new Date(d);
+                endDT.setHours(endHours, endMinutes, 0);
+
+                datePairList.push({ start: startDT.toISOString(), end: endDT.toISOString() });
+            });
+        }
 
         const payload = {
             icon: icon,
             title: title,
             location: location,
             desc: description,
-            duration: duration,
-            dates: dateISOList
+            dates: datePairList
         };
 
         try {
@@ -219,7 +282,7 @@
 
             canvas.style.display = 'block';
         } catch (err) {
-            alert("Lỗi khi tạo QR! Nội dung quá dài, vui lòng bớt số lượng ngày chọn.");
+            alert("Lỗi khi tạo QR! Nội dung quá dài, vui lòng rút ngắn bớt ghi chú hoặc số ngày.");
         }
     }
 </script>
