@@ -28,11 +28,10 @@
 <body>
 
 <div class="card" id="app">
-    <!-- Nội dung sẽ tự động thay đổi dựa trên đường link -->
+    <!-- Nội dung tự động thay đổi dựa trên tham số URL -->
 </div>
 
 <script>
-    // Kiểm tra xem đây là Trang Tạo QR hay Trang Quét Kết Quả
     const urlParams = new URLSearchParams(window.location.search);
     const dataParam = urlParams.get('data');
 
@@ -41,30 +40,40 @@
         try {
             const payload = JSON.parse(decodeURIComponent(escape(atob(dataParam))));
             
+            // Sắp xếp các ngày theo thứ tự tăng dần
+            const sortedDates = payload.dates.map(d => new Date(d)).sort((a, b) => a - b);
+            const firstDate = sortedDates[0];
+            const endFirstDate = new Date(firstDate.getTime() + 30 * 60000);
+
+            // Chuyển danh sách các ngày còn lại thành chuỗi RDATE/RDATE trong quy tắc lặp lại
+            const rdateList = sortedDates.map(d => formatICSDate(d)).join(',');
+
             let icsLines = [
                 "BEGIN:VCALENDAR",
                 "VERSION:2.0",
-                "PRODID:-//QR Reminders//EN"
+                "PRODID:-//QR Reminders//EN",
+                "CALSCALE:GREGORIAN",
+                "METHOD:PUBLISH",
+                "BEGIN:VEVENT",
+                `SUMMARY:${payload.title}`,
+                `DTSTART:${formatICSDate(firstDate)}`,
+                `DTEND:${formatICSDate(endFirstDate)}`,
+                `RDATE;VALUE=DATE-TIME:${rdateList}`,
+                `PRIORITY:${payload.priority}`
             ];
 
-            payload.dates.forEach(dStr => {
-                const startDT = new Date(dStr);
-                const endDT = new Date(startDT.getTime() + 30 * 60000);
-                icsLines.push("BEGIN:VEVENT");
-                icsLines.push(`SUMMARY:${payload.title}`);
-                if (payload.desc) icsLines.push(`DESCRIPTION:${payload.desc}`);
-                icsLines.push(`DTSTART:${formatICSDate(startDT)}`);
-                icsLines.push(`DTEND:${formatICSDate(endDT)}`);
-                icsLines.push(`PRIORITY:${payload.priority}`);
-                icsLines.push("END:VEVENT");
-            });
+            if (payload.desc) {
+                icsLines.push(`DESCRIPTION:${payload.desc}`);
+            }
 
+            icsLines.push("END:VEVENT");
             icsLines.push("END:VCALENDAR");
+
             const icsContent = icsLines.join("\r\n");
 
             document.getElementById('app').innerHTML = `
                 <h2>${payload.title}</h2>
-                <p>Nhấp vào nút bên dưới để thêm <b>${payload.dates.length} ngày</b> vào Lịch / Reminders của bạn:</p>
+                <p>Thêm <b>${payload.dates.length} ngày sự kiện</b> vào Lịch / Outlook / Google Calendar của bạn:</p>
                 <br>
                 <a id="downloadBtn" class="btn" href="#">📅 THÊM TẤT CẢ VÀO LỊCH</a>
             `;
@@ -80,9 +89,9 @@
         }
 
     } else {
-        // === GIAO DIỆN TẠO MÃ QR BÌNH THƯỜNG ===
+        // === GIAO DIỆN TẠO MÃ QR ===
         document.getElementById('app').innerHTML = `
-            <h2>Tạo QR Microsoft Reminders</h2>
+            <h2>Tạo QR Reminders / Lịch</h2>
             <div class="form-group">
                 <label for="title">Chủ đề / Tên nhắc nhở:</label>
                 <input type="text" id="title" placeholder="Ví dụ: [FANG-FPL] GIẢI ESPORTS SINH VIÊN">
@@ -158,10 +167,7 @@
             dates: dateISOList
         };
 
-        // Mã hóa dữ liệu thành chuỗi rút gọn truyền qua URL
         const encodedData = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-        
-        // Link chính xác dẫn tới kết quả
         const resultUrl = `${window.location.origin}${window.location.pathname}?data=${encodedData}`;
 
         const canvas = document.getElementById('qrCanvas');
