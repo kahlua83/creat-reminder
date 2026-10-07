@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo QR Microsoft Reminders</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { margin-top: 0; color: #0078d4; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-weight: 600; color: #333; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        button { width: 100%; padding: 12px; background: #0078d4; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 6px; }
+        button:hover { background: #005a9e; }
+        #qr-container { margin-top: 20px; display: flex; flex-direction: column; align-items: center; }
+        canvas { border: 8px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-radius: 8px; display: none; }
+        .btn-ms { display: block; margin: 12px 0; padding: 14px; background: #0078d4; color: #fff; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 15px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="card" id="app-card">
+    <h2>Tạo QR Microsoft Reminders</h2>
+
+    <div class="form-group">
+        <label for="title">Chủ đề / Tên nhắc nhở:</label>
+        <input type="text" id="title" placeholder="Ví dụ: [FANG-FPL] GIẢI ESPORTS SINH VIÊN">
+    </div>
+
+    <div class="form-group">
+        <label for="multiDates">Chọn các ngày nhắc nhở (tùy ý):</label>
+        <input type="text" id="multiDates" placeholder="Nhấp chọn các ngày...">
+    </div>
+
+    <div class="form-group">
+        <label for="time">Giờ nhắc nhở:</label>
+        <input type="time" id="time" value="09:00">
+    </div>
+
+    <div class="form-group">
+        <label for="priority">Mức độ quan trọng:</label>
+        <select id="priority">
+            <option value="Bình thường">Bình thường</option>
+            <option value="🔥 KHẨN CẤP / RẤT QUAN TRỌNG">🔥 Khẩn cấp / Rất quan trọng</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="description">Ghi chú thêm:</label>
+        <textarea id="description" rows="3" placeholder="Ghi chú..."></textarea>
+    </div>
+
+    <button onclick="generateQRCode()">TẠO MÃ QR MS REMINDERS</button>
+
+    <div id="qr-container">
+        <canvas id="qrCanvas"></canvas>
+    </div>
+</div>
+
+<script>
+    const pickerMulti = flatpickr("#multiDates", { mode: "multiple", dateFormat: "Y-m-d", locale: "vn" });
+
+    function generateQRCode() {
+        const title = document.getElementById('title').value.trim();
+        const dates = pickerMulti.selectedDates;
+        const timeVal = document.getElementById('time').value;
+        const priority = document.getElementById('priority').value;
+        const description = document.getElementById('description').value.trim();
+
+        if (!title || dates.length === 0) {
+            alert("Vui lòng nhập tiêu đề và chọn ít nhất 1 ngày!");
+            return;
+        }
+
+        const dateStrList = dates.map(d => d.toISOString().split('T')[0]).join(',');
+        const currentBaseUrl = window.location.href.split('?')[0];
+        
+        const eventUrl = `${currentBaseUrl}?title=${encodeURIComponent(title)}&dates=${dateStrList}&time=${timeVal}&priority=${encodeURIComponent(priority)}&desc=${encodeURIComponent(description)}`;
+
+        const canvas = document.getElementById('qrCanvas');
+        new QRious({
+            element: canvas,
+            value: eventUrl,
+            size: 260,
+            level: 'L'
+        });
+        canvas.style.display = 'block';
+    }
+
+    // Khi người dùng quét QR và mở link GitHub Pages
+    window.onload = function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('title') && urlParams.has('dates')) {
+            const title = urlParams.get('title');
+            const dates = urlParams.get('dates').split(',');
+            const timeVal = urlParams.get('time') || "09:00";
+            const priority = urlParams.get('priority') || "";
+            const desc = urlParams.get('desc') || "";
+
+            const [hours, minutes] = timeVal.split(':').map(Number);
+            const fullDesc = `[Mức độ: ${priority}]\n\n${desc}`;
+
+            let buttonsHTML = "";
+            dates.forEach(dStr => {
+                const d = new Date(dStr);
+                const start = new Date(d); start.setHours(hours, minutes, 0);
+                const end = new Date(start.getTime() + 1800000); // 30 phút
+                const dayDisplay = `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;
+
+                // Link DeepLink tạo sự kiện trực tiếp cho Microsoft Outlook / Reminders
+                const msLink = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(fullDesc)}&startdt=${start.toISOString()}&enddt=${end.toISOString()}`;
+
+                buttonsHTML += `<a class="btn-ms" href="${msLink}" target="_blank">➕ Thêm vào Microsoft Outlook ngày ${dayDisplay}</a>`;
+            });
+
+            document.getElementById('app-card').innerHTML = `
+                <h2>${title}</h2>
+                <p style="color:#555;font-size:14px;text-align:center">${fullDesc.replace(/\n/g,'<br>')}</p>
+                <hr style="border:none;border-top:1px solid #eee;margin:15px 0">
+                <p style="font-size:13px;color:#333;text-align:center"><b>Nhấn lần lượt từng nút để lưu vào Microsoft Reminders / Outlook:</b></p>
+                ${buttonsHTML}
+            `;
+        }
+    };
+</script>
+
+</body>
+</html>
