@@ -66,25 +66,32 @@
 </div>
 
 <script>
-    // Dán URL Apps Script của bạn vào đây:
-    const SCRIPT_URL = "https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWsp7idCLEfOfUtRPUcdmW_xRsVdVgaDEomXVhUIY9bZ9a5mhI_un-YNft5nEBR3fH/exec";
 
     function loadData() {
         document.getElementById('loading').style.display = 'block';
         document.getElementById('dataTable').style.display = 'none';
 
-        fetch(SCRIPT_URL)
+        // Gọi API lấy dữ liệu thông qua cấu hình redirect an toàn
+        fetch(SCRIPT_URL, { redirect: "follow" })
             .then(res => res.json())
             .then(data => {
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('dataTable').style.display = 'table';
 
+                if (!Array.isArray(data) || data.length === 0) {
+                    document.getElementById('loading').style.display = 'block';
+                    document.getElementById('loading').innerText = 'Chưa có dữ liệu nào trong Google Sheet.';
+                    document.getElementById('dataTable').style.display = 'none';
+                    return;
+                }
+
                 let totalQr = data.length;
                 let totalDaysCount = 0;
                 let rowsHtml = '';
 
-                // Hiển thị danh sách từ mới nhất đến cũ nhất
-                data.reverse().forEach((row, index) => {
+                // Đảo ngược danh sách để hiển thị lượt tạo mới nhất lên đầu
+                data.slice().reverse().forEach((row, index) => {
                     const days = parseInt(row[3]) || 0;
                     totalDaysCount += days;
 
@@ -105,7 +112,8 @@
                 document.getElementById('tableBody').innerHTML = rowsHtml;
             })
             .catch(err => {
-                document.getElementById('loading').innerHTML = '⚠️ Không thể tải dữ liệu! Vui lòng kiểm tra lại URL Script.';
+                console.error(err);
+                document.getElementById('loading').innerHTML = '⚠️ Không thể tải dữ liệu! Vui lòng kiểm tra lại quyền truy cập Apps Script.';
             });
     }
 
